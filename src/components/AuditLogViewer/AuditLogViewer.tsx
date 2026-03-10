@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 interface AuditLogEntry {
     id: string;
@@ -80,8 +81,18 @@ const CATEGORY_COLORS = {
     default: { bg: "#1e1e2e", border: "#6366f1", text: "#818cf8", dot: "#6366f1" }
 };
 
-function getCategoryStyle(category: string) {
-    return (CATEGORY_COLORS as Record<string, typeof CATEGORY_COLORS.default>)[category?.toLowerCase()] || CATEGORY_COLORS.default;
+const CATEGORY_COLORS_LIGHT = {
+    execute: { bg: "#dcfce7", border: "#16a34a", text: "#15803d", dot: "#16a34a" },
+    modify: { bg: "#ffedd5", border: "#ea580c", text: "#c2410c", dot: "#ea580c" },
+    create: { bg: "#dbeafe", border: "#2563eb", text: "#1d4ed8", dot: "#2563eb" },
+    delete: { bg: "#fee2e2", border: "#dc2626", text: "#b91c1c", dot: "#dc2626" },
+    read: { bg: "#cffafe", border: "#0891b2", text: "#0e7490", dot: "#0891b2" },
+    default: { bg: "#e0e7ff", border: "#4f46e5", text: "#4338ca", dot: "#4f46e5" }
+};
+
+function getCategoryStyle(category: string, isDark = true) {
+    const colors = isDark ? CATEGORY_COLORS : CATEGORY_COLORS_LIGHT;
+    return (colors as Record<string, typeof CATEGORY_COLORS.default>)[category?.toLowerCase()] || colors.default;
 }
 
 function formatTimestamp(ts: string) {
@@ -112,7 +123,8 @@ function Badge({ label, color }: { label: string; color: typeof CATEGORY_COLORS.
 }
 
 function LogRow({ entry, onClick, selected }: { entry: AuditLogEntry; onClick: (e: AuditLogEntry) => void; selected: boolean }) {
-    const cat = getCategoryStyle(entry.category);
+    const { isDark } = useTheme();
+    const cat = getCategoryStyle(entry.category, isDark);
     const { date, time } = formatTimestamp(entry.timestamp);
     return (
         <div
@@ -120,7 +132,7 @@ function LogRow({ entry, onClick, selected }: { entry: AuditLogEntry; onClick: (
             className="grid gap-4 items-center px-5 py-3 cursor-pointer border-b border-edge transition-colors hover:bg-deep"
             style={{
                 gridTemplateColumns: "36px 140px minmax(0,1fr) 120px 90px",
-                background: selected ? "#1a1a2e" : undefined,
+                background: selected ? (isDark ? "#1a1a2e" : "#dde5f8") : undefined,
                 borderLeft: `3px solid ${selected ? "#6366f1" : "transparent"}`,
             }}
         >
@@ -146,7 +158,8 @@ function LogRow({ entry, onClick, selected }: { entry: AuditLogEntry; onClick: (
 
 function DetailPanel({ entry, onClose }: { entry: AuditLogEntry; onClose: () => void }) {
     if (!entry) return null;
-    const cat = getCategoryStyle(entry.category);
+    const { isDark } = useTheme();
+    const cat = getCategoryStyle(entry.category, isDark);
     const { date, time } = formatTimestamp(entry.timestamp);
 
     const fields = [
@@ -167,8 +180,8 @@ function DetailPanel({ entry, onClose }: { entry: AuditLogEntry; onClose: () => 
     ];
 
     return (
-        <div className="w-[400px] shrink-0 border-l border-edge bg-[#0d0d17] flex flex-col h-full">
-            <div className="px-5 py-4 border-b border-edge flex justify-between items-center sticky top-0 bg-[#0d0d17] z-10">
+        <div className="w-[400px] shrink-0 border-l border-edge bg-dark flex flex-col h-full">
+            <div className="px-5 py-4 border-b border-edge flex justify-between items-center sticky top-0 bg-dark z-10">
                 <div className="text-[13px] font-bold text-slate-200 tracking-[0.04em]">LOG DETAIL</div>
                 <button
                     onClick={onClose}
@@ -209,7 +222,22 @@ function DetailPanel({ entry, onClose }: { entry: AuditLogEntry; onClose: () => 
     );
 }
 
+function ThemeToggle() {
+    const { isDark, toggle } = useTheme();
+    return (
+        <button
+            onClick={toggle}
+            className="bg-transparent border border-slate-700 text-slate-500 px-3 py-1.5 rounded-md text-xs cursor-pointer font-mono hover:text-slate-300 hover:border-slate-500 transition-colors"
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+            {isDark ? '☀ Light' : '☾ Dark'}
+        </button>
+    );
+}
+
 export default function AuditLogViewer() {
+    const { isDark } = useTheme();
+
     const [logs, setLogs] = useState<AuditLogEntry[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -305,7 +333,8 @@ export default function AuditLogViewer() {
 
     if (!isConnected) {
         return (
-            <div className="font-mono bg-[#14141f] min-h-screen flex flex-col items-center justify-center text-slate-200">
+            <div className={`min-h-screen flex flex-col items-center justify-center text-slate-200 ${isDark ? 'bg-[#14141f]' : 'bg-[#edf0f8]'}`}>
+                <div className="absolute top-4 right-4"><ThemeToggle /></div>
                 <form onSubmit={handleConnect} className="bg-dark border border-edge rounded-xl p-10 w-full max-w-md flex flex-col gap-5">
                     <div>
                         <div className="text-xl font-extrabold tracking-[0.06em] text-slate-100 mb-1">
@@ -369,7 +398,7 @@ export default function AuditLogViewer() {
     }
 
     return (
-        <div className="font-mono min-h-screen bg-[#14141f] flex flex-col items-center py-8 px-4 text-slate-200">
+        <div className={`font-mono min-h-screen flex flex-col items-center py-8 px-4 text-slate-200 ${isDark ? 'bg-[#14141f]' : 'bg-[#edf0f8]'}`}>
         <div className="w-3/5 min-w-[820px] bg-void rounded-2xl border border-edge shadow-[0_4px_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(99,102,241,0.08)] flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 4rem)' }}>
             {/* Header */}
             <div className="px-6 py-4 border-b border-edge bg-dark rounded-t-2xl flex items-center justify-between flex-wrap gap-3">
@@ -405,6 +434,7 @@ export default function AuditLogViewer() {
                     >
                         {loading ? "⟳ Loading..." : "⟳ Refresh"}
                     </button>
+                    <ThemeToggle />
                     <button
                         onClick={handleDisconnect}
                         className="bg-transparent border border-slate-700 text-slate-500 px-3 py-1.5 rounded-md text-xs cursor-pointer font-mono hover:text-slate-300 hover:border-slate-500 transition-colors"
