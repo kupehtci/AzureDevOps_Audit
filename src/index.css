@@ -10,7 +10,7 @@
   --color-rim: #2d2d3d;
 
   /* Mono font override */
-  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  /* --font-mono: 'IBM Plex Mono', 'Courier New', monospace; */
 }
 
 :root {
@@ -20,10 +20,33 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html.light {
+  /* Background palette overrides */
+  --color-void: #ffffff;
+  --color-dark: #f5f7fc;
+  --color-deeper: #edf0f8;
+  --color-deep: #e4e9f4;
+  --color-edge: #c8d3e8;
+  --color-rim: #a4b2cf;
+  color-scheme: light;
+}
+
+/* Text color overrides for light mode */
+html.light .text-slate-100 { color: #0f172a; }
+html.light .text-slate-200 { color: #1e293b; }
+html.light .text-slate-300 { color: #334155; }
+html.light .text-slate-400 { color: #475569; }
+html.light .text-slate-500 { color: #64748b; }
+html.light .text-violet-400 { color: #5b21b6; }
+
 /* Allow datetime-local picker icon to be visible on dark backgrounds */
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   filter: invert(0.6);
   cursor: pointer;
+}
+
+html.light input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.3);
 }
 
 /* Fade-out scrollbar — invisible at rest, subtle on hover */
