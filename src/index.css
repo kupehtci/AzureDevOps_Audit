@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  /* Custom dark background palette */
+  --color-void: #09090f;
+  --color-dark: #0d0d17;
+  --color-deeper: #0a0a14;
+  --color-deep: #13131f;
+  --color-edge: #1e1e2e;
+  --color-rim: #2d2d3d;
+
+  /* Mono font override */
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Allow datetime-local picker icon to be visible on dark backgrounds */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.6);
+  cursor: pointer;
+}
+
+/* Fade-out scrollbar — invisible at rest, subtle on hover */
+.scroll-fade {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.scroll-fade:hover {
+  scrollbar-color: #2d2d3d transparent;
+}
+.scroll-fade::-webkit-scrollbar {
+  width: 5px;
+}
+.scroll-fade::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-fade::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+.scroll-fade:hover::-webkit-scrollbar-thumb {
+  background: #2d2d3d;
+}
