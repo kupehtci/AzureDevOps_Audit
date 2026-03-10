@@ -1,14 +1,12 @@
-// import { useState } from 'react'
 import './App.css'
 import { AuditLogViewer } from './components'
+import { ThemeProvider } from './context/ThemeContext'
 
 function App() {
-
-
   return (
-    <>
-        <AuditLogViewer />
-    </>
+    <ThemeProvider>
+      <AuditLogViewer />
+    </ThemeProvider>
   )
 }
 
